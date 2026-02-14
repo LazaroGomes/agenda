@@ -1,0 +1,17 @@
+CREATE TABLE IF NOT EXISTS tipos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  descricao TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS contatos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome TEXT NOT NULL,
+  telefone TEXT,
+  email TEXT,
+  tipo_id INTEGER NOT NULL,
+  FOREIGN KEY (tipo_id) REFERENCES tipos(id)
+);
+
+INSERT OR IGNORE INTO tipos(descricao) VALUES ('Amigos');
+INSERT OR IGNORE INTO tipos(descricao) VALUES ('Comercial');
+INSERT OR IGNORE INTO tipos(descricao) VALUES ('Outros');
