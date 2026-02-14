@@ -24,6 +24,9 @@ type
     procedure Conectar(const ADatabasePath: string);
     procedure AbrirContatos;
     procedure AbrirTipos;
+    procedure InserirTipo(const ADescricao: string);
+    procedure AtualizarTipo(AID: Integer; const ADescricao: string);
+    procedure ExcluirTipo(AID: Integer);
     procedure InserirContato(const ANome, ATelefone, AEmail: string; ATipoID: Integer);
     procedure AtualizarContato(AID: Integer; const ANome, ATelefone, AEmail: string; ATipoID: Integer);
     procedure ExcluirContato(AID: Integer);
@@ -119,6 +122,58 @@ begin
 
   FTiposQuery.SQL.Text := 'SELECT id, descricao FROM tipos ORDER BY descricao';
   FTiposQuery.Open;
+end;
+
+procedure TAgendaData.InserirTipo(const ADescricao: string);
+var
+  Q: TSQLQuery;
+begin
+  Q := TSQLQuery.Create(nil);
+  try
+    Q.DataBase := FConn;
+    Q.Transaction := FTrans;
+    Q.SQL.Text := 'INSERT INTO tipos (descricao) VALUES (:descricao)';
+    Q.Params.ParamByName('descricao').AsString := Trim(ADescricao);
+    Q.ExecSQL;
+    FTrans.Commit;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAgendaData.AtualizarTipo(AID: Integer; const ADescricao: string);
+var
+  Q: TSQLQuery;
+begin
+  Q := TSQLQuery.Create(nil);
+  try
+    Q.DataBase := FConn;
+    Q.Transaction := FTrans;
+    Q.SQL.Text := 'UPDATE tipos SET descricao = :descricao WHERE id = :id';
+    Q.Params.ParamByName('id').AsInteger := AID;
+    Q.Params.ParamByName('descricao').AsString := Trim(ADescricao);
+    Q.ExecSQL;
+    FTrans.Commit;
+  finally
+    Q.Free;
+  end;
+end;
+
+procedure TAgendaData.ExcluirTipo(AID: Integer);
+var
+  Q: TSQLQuery;
+begin
+  Q := TSQLQuery.Create(nil);
+  try
+    Q.DataBase := FConn;
+    Q.Transaction := FTrans;
+    Q.SQL.Text := 'DELETE FROM tipos WHERE id = :id';
+    Q.Params.ParamByName('id').AsInteger := AID;
+    Q.ExecSQL;
+    FTrans.Commit;
+  finally
+    Q.Free;
+  end;
 end;
 
 procedure TAgendaData.InserirContato(const ANome, ATelefone, AEmail: string; ATipoID: Integer);
