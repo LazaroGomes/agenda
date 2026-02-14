@@ -5,7 +5,9 @@ Projeto simples de agenda com cadastro de contatos e tipos de contato.
 ## Estrutura
 
 - `agenda.lpr`: ponto de entrada da aplicação Lazarus.
-- `uMain.pas`: formulário principal (interface e ações de CRUD).
+- `uMain.pas`: formulário principal (GUI) com navegação para os cadastros.
+- `uContatosForm.pas`: formulário de contatos (CRUD de contatos).
+- `uTiposForm.pas`: formulário de tipos de contato (CRUD de tipos).
 - `uData.pas`: camada de acesso a dados com SQLite (`tipos` e `contatos`).
 - `schema.sql`: script SQL com a estrutura do banco.
 
@@ -31,7 +33,7 @@ Projeto simples de agenda com cadastro de contatos e tipos de contato.
 
 ## Funcionalidades
 
-- Cadastro de contato (nome, telefone, e-mail e tipo).
-- Edição de contato ao selecionar um item da grade.
-- Exclusão de contato selecionado.
-- Criação automática das tabelas caso não existam.
+- Formulário principal (GUI) para acesso aos módulos.
+- Formulário de contatos com cadastro, edição e exclusão.
+- Formulário de tipos com cadastro, edição e exclusão.
+- Criação automática das tabelas e tipos padrão caso não existam.

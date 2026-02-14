@@ -5,45 +5,22 @@ unit uMain;
 interface
 
 uses
-  Classes, SysUtils, Variants, Forms, Controls, Graphics, Dialogs, StdCtrls, DBGrids, DB,
-  DBCtrls, uData;
+  Classes, SysUtils, Forms, Controls, StdCtrls, uData, uContatosForm, uTiposForm;
 
 type
-
   { TfrmMain }
 
   TfrmMain = class(TForm)
   private
     FData: TAgendaData;
-    FContatosDS: TDataSource;
+    btnContatos: TButton;
+    btnTipos: TButton;
+    lblTitulo: TLabel;
 
-    lblNome: TLabel;
-    lblTelefone: TLabel;
-    lblEmail: TLabel;
-    lblTipo: TLabel;
-
-    edtNome: TEdit;
-    edtTelefone: TEdit;
-    edtEmail: TEdit;
-    cmbTipo: TDBLookupComboBox;
-
-    btnNovo: TButton;
-    btnSalvar: TButton;
-    btnExcluir: TButton;
-
-    grdContatos: TDBGrid;
-    FEditando: Boolean;
-
-    procedure CarregarRegistroAtual;
-    procedure LimparFormulario;
-    function TipoSelecionadoID: Integer;
-    procedure OnNovoClick(Sender: TObject);
-    procedure OnSalvarClick(Sender: TObject);
-    procedure OnExcluirClick(Sender: TObject);
-    procedure OnGridCellClick(Column: TColumn);
+    procedure OnAbrirContatos(Sender: TObject);
+    procedure OnAbrirTipos(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
 var
@@ -56,201 +33,62 @@ var
   DbPath: string;
 begin
   inherited CreateNew(AOwner, 1);
-  Caption := 'Agenda (SQLite)';
-  Width := 820;
-  Height := 500;
+  Caption := 'Agenda - GUI Principal';
+  Width := 460;
+  Height := 240;
   Position := poScreenCenter;
 
   FData := TAgendaData.Create(Self);
-  FContatosDS := TDataSource.Create(Self);
-
-  lblNome := TLabel.Create(Self);
-  lblNome.Parent := Self;
-  lblNome.Caption := 'Nome';
-  lblNome.Left := 16;
-  lblNome.Top := 16;
-
-  edtNome := TEdit.Create(Self);
-  edtNome.Parent := Self;
-  edtNome.Left := 16;
-  edtNome.Top := 36;
-  edtNome.Width := 250;
-
-  lblTelefone := TLabel.Create(Self);
-  lblTelefone.Parent := Self;
-  lblTelefone.Caption := 'Telefone';
-  lblTelefone.Left := 280;
-  lblTelefone.Top := 16;
-
-  edtTelefone := TEdit.Create(Self);
-  edtTelefone.Parent := Self;
-  edtTelefone.Left := 280;
-  edtTelefone.Top := 36;
-  edtTelefone.Width := 150;
-
-  lblEmail := TLabel.Create(Self);
-  lblEmail.Parent := Self;
-  lblEmail.Caption := 'E-mail';
-  lblEmail.Left := 440;
-  lblEmail.Top := 16;
-
-  edtEmail := TEdit.Create(Self);
-  edtEmail.Parent := Self;
-  edtEmail.Left := 440;
-  edtEmail.Top := 36;
-  edtEmail.Width := 250;
-
-  lblTipo := TLabel.Create(Self);
-  lblTipo.Parent := Self;
-  lblTipo.Caption := 'Tipo';
-  lblTipo.Left := 700;
-  lblTipo.Top := 16;
-
-  cmbTipo := TDBLookupComboBox.Create(Self);
-  cmbTipo.Parent := Self;
-  cmbTipo.Left := 700;
-  cmbTipo.Top := 36;
-  cmbTipo.Width := 100;
-
-  btnNovo := TButton.Create(Self);
-  btnNovo.Parent := Self;
-  btnNovo.Caption := 'Novo';
-  btnNovo.Left := 16;
-  btnNovo.Top := 76;
-  btnNovo.OnClick := @OnNovoClick;
-
-  btnSalvar := TButton.Create(Self);
-  btnSalvar.Parent := Self;
-  btnSalvar.Caption := 'Salvar';
-  btnSalvar.Left := 100;
-  btnSalvar.Top := 76;
-  btnSalvar.OnClick := @OnSalvarClick;
-
-  btnExcluir := TButton.Create(Self);
-  btnExcluir.Parent := Self;
-  btnExcluir.Caption := 'Excluir';
-  btnExcluir.Left := 184;
-  btnExcluir.Top := 76;
-  btnExcluir.OnClick := @OnExcluirClick;
-
-  grdContatos := TDBGrid.Create(Self);
-  grdContatos.Parent := Self;
-  grdContatos.Left := 16;
-  grdContatos.Top := 116;
-  grdContatos.Width := 784;
-  grdContatos.Height := 330;
-  grdContatos.OnCellClick := @OnGridCellClick;
-
   DbPath := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + 'agenda.db';
   FData.Conectar(DbPath);
-  FData.AbrirTipos;
-  FData.AbrirContatos;
 
-  FContatosDS.DataSet := FData.ContatosQuery;
-  grdContatos.DataSource := FContatosDS;
+  lblTitulo := TLabel.Create(Self);
+  lblTitulo.Parent := Self;
+  lblTitulo.Caption := 'Selecione o formulário que deseja abrir';
+  lblTitulo.Left := 90;
+  lblTitulo.Top := 32;
 
-  cmbTipo.ListSource := TDataSource.Create(Self);
-  cmbTipo.ListSource.DataSet := FData.TiposQuery;
-  cmbTipo.ListField := 'descricao';
-  cmbTipo.KeyField := 'id';
+  btnContatos := TButton.Create(Self);
+  btnContatos.Parent := Self;
+  btnContatos.Caption := 'Formulário de Contatos';
+  btnContatos.Width := 170;
+  btnContatos.Height := 36;
+  btnContatos.Left := 48;
+  btnContatos.Top := 92;
+  btnContatos.OnClick := @OnAbrirContatos;
 
-  FEditando := False;
-  LimparFormulario;
+  btnTipos := TButton.Create(Self);
+  btnTipos.Parent := Self;
+  btnTipos.Caption := 'Formulário de Tipos';
+  btnTipos.Width := 170;
+  btnTipos.Height := 36;
+  btnTipos.Left := 236;
+  btnTipos.Top := 92;
+  btnTipos.OnClick := @OnAbrirTipos;
 end;
 
-destructor TfrmMain.Destroy;
-begin
-  inherited Destroy;
-end;
-
-procedure TfrmMain.CarregarRegistroAtual;
-begin
-  if FData.ContatosQuery.IsEmpty then
-    Exit;
-
-  edtNome.Text := FData.ContatosQuery.FieldByName('nome').AsString;
-  edtTelefone.Text := FData.ContatosQuery.FieldByName('telefone').AsString;
-  edtEmail.Text := FData.ContatosQuery.FieldByName('email').AsString;
-  cmbTipo.KeyValue := FData.ContatosQuery.FieldByName('tipo_id').AsInteger;
-end;
-
-procedure TfrmMain.LimparFormulario;
-begin
-  edtNome.Clear;
-  edtTelefone.Clear;
-  edtEmail.Clear;
-  if not FData.TiposQuery.IsEmpty then
-    cmbTipo.KeyValue := FData.TiposQuery.FieldByName('id').AsInteger
-  else
-    cmbTipo.KeyValue := Null;
-end;
-
-function TfrmMain.TipoSelecionadoID: Integer;
-begin
-  if VarIsNull(cmbTipo.KeyValue) then
-    Exit(0);
-  Result := cmbTipo.KeyValue;
-end;
-
-procedure TfrmMain.OnNovoClick(Sender: TObject);
-begin
-  FEditando := False;
-  LimparFormulario;
-end;
-
-procedure TfrmMain.OnSalvarClick(Sender: TObject);
+procedure TfrmMain.OnAbrirContatos(Sender: TObject);
 var
-  ContatoID: Integer;
+  Frm: TfrmContatos;
 begin
-  if Trim(edtNome.Text) = '' then
-  begin
-    MessageDlg('Validação', 'Informe o nome do contato.', mtWarning, [mbOK], 0);
-    Exit;
+  Frm := TfrmContatos.CreateComData(Self, FData);
+  try
+    Frm.ShowModal;
+  finally
+    Frm.Free;
   end;
-
-  if TipoSelecionadoID = 0 then
-  begin
-    MessageDlg('Validação', 'Selecione um tipo para o contato.', mtWarning, [mbOK], 0);
-    Exit;
-  end;
-
-  if not FData.ContatosQuery.IsEmpty then
-    ContatoID := FData.ContatosQuery.FieldByName('id').AsInteger
-  else
-    ContatoID := 0;
-
-  if FEditando and (ContatoID > 0) then
-    FData.AtualizarContato(ContatoID, edtNome.Text, edtTelefone.Text, edtEmail.Text,
-      TipoSelecionadoID)
-  else
-    FData.InserirContato(edtNome.Text, edtTelefone.Text, edtEmail.Text, TipoSelecionadoID);
-
-  FData.AbrirContatos;
-  FEditando := False;
-  LimparFormulario;
 end;
 
-procedure TfrmMain.OnExcluirClick(Sender: TObject);
+procedure TfrmMain.OnAbrirTipos(Sender: TObject);
 var
-  ContatoID: Integer;
+  Frm: TfrmTipos;
 begin
-  if FData.ContatosQuery.IsEmpty then
-    Exit;
-
-  ContatoID := FData.ContatosQuery.FieldByName('id').AsInteger;
-  if MessageDlg('Confirmação', 'Excluir contato selecionado?', mtConfirmation,
-    [mbYes, mbNo], 0) = mrYes then
-  begin
-    FData.ExcluirContato(ContatoID);
-    FData.AbrirContatos;
-    LimparFormulario;
+  Frm := TfrmTipos.CreateComData(Self, FData);
+  try
+    Frm.ShowModal;
+  finally
+    Frm.Free;
   end;
-end;
-
-procedure TfrmMain.OnGridCellClick(Column: TColumn);
-begin
-  FEditando := True;
-  CarregarRegistroAtual;
 end;
 
 end.
